@@ -10,18 +10,27 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-
 public class ChatServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static ChannelGroup channelGroup =  new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    private static ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Channel currentCh = ctx.channel();
-
+        channelGroup.add(currentCh);
         String actMsg = "Client [" + currentCh.remoteAddress() + "] is online.";
         ByteBuf byteBuf = Unpooled.copiedBuffer(actMsg, CharsetUtil.UTF_8);
-        channelGroup.add(currentCh);
+
+        channelGroup.writeAndFlush(byteBuf);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        Channel currentCh = ctx.channel();
+        channelGroup.remove(currentCh);
+        String offlineMsg = "[" + currentCh.remoteAddress() + "] is offline.";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(offlineMsg, CharsetUtil.UTF_8);
+
         channelGroup.writeAndFlush(byteBuf);
     }
 
@@ -29,11 +38,21 @@ public class ChatServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel currentCh = ctx.channel();
         ByteBuf byteBuf = (ByteBuf) msg;
-        String ReadMsg ="[" + currentCh.remoteAddress() + "]: " + byteBuf.toString(CharsetUtil.UTF_8);
 
+        String content = byteBuf.toString(CharsetUtil.UTF_8);
 
-        System.out.println(ReadMsg);
+        sendChatMsg(currentCh,content);
 
-//        channelGroup.writeAndFlush(byteBuf);
+    }
+
+    private void sendChatMsg(Channel ch,String msg){
+        for (Channel c: channelGroup
+        ) {
+            if( ch != c){
+                c.writeAndFlush(Unpooled.copiedBuffer("[" + ch.remoteAddress() + "]: "  + msg,CharsetUtil.UTF_8));
+            }else {
+                c.writeAndFlush( Unpooled.copiedBuffer("[You]: " + msg,CharsetUtil.UTF_8));
+            }
+        }
     }
 }

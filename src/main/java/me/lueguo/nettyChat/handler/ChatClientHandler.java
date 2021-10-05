@@ -10,6 +10,7 @@ public class ChatClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
         String readMSg = byteBuf.toString(CharsetUtil.UTF_8);
-        System.out.println(readMSg);
+        String Prefix = "Received-->";
+        System.out.println(Prefix + readMSg);
     }
 }

@@ -18,9 +18,17 @@ public class ChatClient {
     private static final String HOST = "localhost";
     private static final int PORT = 1124;
 
-    public static void main(String[] args) {
+    private void sendMsg(Channel channel){
         Scanner scan = new Scanner(System.in);
-        String msg;
+        while (scan.hasNextLine()){
+            String msg = scan.nextLine();
+            ByteBuf byteBuf = Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8);
+            channel.writeAndFlush(byteBuf);
+        }
+    }
+
+    public static void main(String[] args) {
+
         EventLoopGroup eventExecutors = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -30,12 +38,8 @@ public class ChatClient {
 
             ChannelFuture cf = bootstrap.connect(HOST, PORT).sync();
             Channel channel = cf.channel();
+            new ChatClient().sendMsg(channel);
 
-            while (scan.hasNextLine()){
-                msg = scan.nextLine();
-                ByteBuf byteBuf = Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8);
-                channel.writeAndFlush(byteBuf);
-            }
             cf.channel().closeFuture().sync();
 
         } catch (InterruptedException e) {
