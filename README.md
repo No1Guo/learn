@@ -1,4 +1,4 @@
 # learn
-learn something
-good start
-noob is on his way...
+learn something  
+good start  
+noob is on his way...  
