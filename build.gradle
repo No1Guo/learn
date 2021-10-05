@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'me.lueguo'
+version '1.0-SNAPSHOT'
+
+repositories {
+    repositories {
+        mavenLocal()
+        maven {
+            url 'https://maven.aliyun.com/repository/public/'
+        }
+        mavenCentral()
+    }
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/io.netty/netty-all
+    implementation 'io.netty:netty-all:4.1.51.Final'
+//compile 和 api 关键字效果一样，子module也能够使用该API
+//而使用implementation标记的API则不能子module使用
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+//test {
+//    useJUnitPlatform()
+//}
